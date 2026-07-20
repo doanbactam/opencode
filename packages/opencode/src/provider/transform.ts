@@ -73,11 +73,9 @@ function sdkKey(npm: string): string | undefined {
   return undefined
 }
 
-// TODO: fix this stupid inefficient dogshit function
 function normalizeMessages(
   msgs: ModelMessage[],
   model: Provider.Model,
-  _options: Record<string, unknown>,
 ): ModelMessage[] {
   const sanitizeToolResultOutput = (content: ToolResultPart) => {
     if (content.output.type === "text" || content.output.type === "error-text") {
@@ -441,7 +439,7 @@ function mapProviderOptions(
 
 export function message(msgs: ModelMessage[], model: Provider.Model, options: Record<string, unknown>) {
   msgs = unsupportedParts(msgs, model)
-  msgs = normalizeMessages(msgs, model, options)
+  msgs = normalizeMessages(msgs, model)
   if (
     (model.providerID === "anthropic" ||
       model.providerID === "google-vertex-anthropic" ||
@@ -1460,24 +1458,6 @@ function sanitizeOpenAISchema(value: unknown): unknown {
 }
 
 export function schema(model: Provider.Model, schema: JSONSchema7): JSONSchema7 {
-  /*
-  if (["openai", "azure"].includes(providerID)) {
-    if (schema.type === "object" && schema.properties) {
-      for (const [key, value] of Object.entries(schema.properties)) {
-        if (schema.required?.includes(key)) continue
-        schema.properties[key] = {
-          anyOf: [
-            value as JSONSchema.JSONSchema,
-            {
-              type: "null",
-            },
-          ],
-        }
-      }
-    }
-  }
-  */
-
   if (model.api.npm === "@ai-sdk/openai" || model.api.npm === "@ai-sdk/azure") {
     schema = sanitizeOpenAISchema(schema) as JSONSchema7
     // Codex also applies lossy compaction above 4 KB; defer that until OpenCode needs the same schema budget.

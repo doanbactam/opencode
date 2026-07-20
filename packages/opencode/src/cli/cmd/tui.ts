@@ -110,11 +110,6 @@ export const TuiThreadCommand = cmd({
         describe: "auto-approve permissions that are not explicitly denied (dangerous!)",
         default: false,
       })
-      .option("yolo", {
-        type: "boolean",
-        hidden: true,
-        default: false,
-      })
       .option("dangerously-skip-permissions", {
         type: "boolean",
         hidden: true,
@@ -124,10 +119,6 @@ export const TuiThreadCommand = cmd({
         type: "boolean",
         describe: "start the minimal interactive interface",
         default: false,
-      })
-      .option("replay", {
-        type: "boolean",
-        hidden: true,
       })
       .option("no-replay", {
         type: "boolean",
@@ -142,12 +133,7 @@ export const TuiThreadCommand = cmd({
         hidden: true,
       }),
   handler: async (args) => {
-    if (args.replay === true) {
-      UI.error("--replay is not supported; replay is enabled by default")
-      process.exitCode = 1
-      return
-    }
-    const noReplay = args.replay === false || args.noReplay === true
+    const noReplay = args.noReplay === true
 
     if (args.mini) {
       const network = ["--port", "--hostname", "--mdns", "--no-mdns", "--mdns-domain", "--cors"].find((option) =>
@@ -291,7 +277,7 @@ export const TuiThreadCommand = cmd({
               model: args.model,
               prompt,
               fork: args.fork,
-              auto: args.auto || args.yolo || args["dangerously-skip-permissions"],
+              auto: args.auto || args["dangerously-skip-permissions"],
             },
           }),
         )
@@ -306,4 +292,3 @@ export const TuiThreadCommand = cmd({
     process.exit(0)
   },
 })
-// scratch

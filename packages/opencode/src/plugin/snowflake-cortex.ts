@@ -4,17 +4,13 @@ import { InstallationVersion } from "@opencode-ai/core/installation/version"
 import { OauthCallbackPage } from "@opencode-ai/core/oauth/page"
 import { createServer } from "http"
 import open from "open"
+import { generatePKCE, generateRandomString, type PkceCodes } from "./oauth"
 
 const OAUTH_CLIENT_ID = "LOCAL_APPLICATION"
 const OAUTH_CALLBACK_HOST = "127.0.0.1"
 const OAUTH_CALLBACK_PATH = "/"
 const OAUTH_TIMEOUT_MS = 5 * 60 * 1000
 const ACCESS_TOKEN_REFRESH_SKEW_MS = 120_000
-
-interface PkceCodes {
-  verifier: string
-  challenge: string
-}
 
 interface TokenResponse {
   access_token: string
@@ -41,27 +37,6 @@ function normalizeAccount(input: string) {
     .replace(/^https?:\/\//, "")
     .replace(/\.snowflakecomputing\.com\/?$/, "")
     .replace(/\/+$/, "")
-}
-
-function generateRandomString(length: number) {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
-  return Array.from(crypto.getRandomValues(new Uint8Array(length)))
-    .map((b) => chars[b % chars.length])
-    .join("")
-}
-
-function base64UrlEncode(buffer: ArrayBuffer) {
-  const binary = String.fromCharCode(...new Uint8Array(buffer))
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
-}
-
-async function generatePKCE(): Promise<PkceCodes> {
-  const verifier = generateRandomString(64)
-  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))
-  return {
-    verifier,
-    challenge: base64UrlEncode(hash),
-  }
 }
 
 function callbackUrl() {

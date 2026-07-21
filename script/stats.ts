@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-async function sendToPostHog(event: string, properties: Record<string, any>) {
+async function sendToPostHog(event: string, properties: Record<string, unknown>) {
   const key = process.env["POSTHOG_KEY"]
 
   if (!key) {
@@ -49,18 +49,42 @@ interface NpmDownloadsRange {
   }>
 }
 
+function formatNpmDate(date: Date): string {
+  return date.toISOString().split("T")[0]
+}
+
+async function fetchNpmRange(packageName: string, start: Date, end: Date): Promise<number> {
+  const response = await fetch(
+    `https://api.npmjs.org/downloads/range/${formatNpmDate(start)}:${formatNpmDate(end)}/${packageName}`,
+  )
+  if (!response.ok) {
+    throw new Error(`npm API error ${response.status}`)
+  }
+  const data: NpmDownloadsRange = await response.json()
+  return data.downloads.reduce((total, day) => total + day.downloads, 0)
+}
+
 async function fetchNpmDownloads(packageName: string): Promise<number> {
   try {
-    // Use a range from 2020 to current year + 5 years to ensure it works forever
-    const currentYear = new Date().getFullYear()
-    const endYear = currentYear + 5
-    const response = await fetch(`https://api.npmjs.org/downloads/range/2020-01-01:${endYear}-12-31/${packageName}`)
-    if (!response.ok) {
-      console.warn(`Failed to fetch npm downloads for ${packageName}: ${response.status}`)
-      return 0
+    const today = new Date()
+    const start = new Date("2020-01-01")
+    let total = 0
+    let chunkStart = new Date(start)
+
+    while (chunkStart <= today) {
+      const chunkEnd = new Date(chunkStart)
+      chunkEnd.setUTCFullYear(chunkEnd.getUTCFullYear() + 1)
+      chunkEnd.setUTCDate(chunkEnd.getUTCDate() - 1)
+      if (chunkEnd > today) {
+        chunkEnd.setTime(today.getTime())
+      }
+
+      total += await fetchNpmRange(packageName, chunkStart, chunkEnd)
+      chunkStart.setTime(chunkEnd.getTime())
+      chunkStart.setUTCDate(chunkStart.getUTCDate() + 1)
     }
-    const data: NpmDownloadsRange = await response.json()
-    return data.downloads.reduce((total, day) => total + day.downloads, 0)
+
+    return total
   } catch (error) {
     console.warn(`Error fetching npm downloads for ${packageName}:`, error)
     return 0

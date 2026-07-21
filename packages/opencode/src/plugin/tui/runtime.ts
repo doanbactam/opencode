@@ -1087,8 +1087,6 @@ async function load(input: {
     )
     const pluginOrigins = config.plugin_origins ?? (await TuiConfig.pluginOrigins())
     const records = Flag.OPENCODE_PURE ? [] : pluginOrigins
-    if (Flag.OPENCODE_PURE && pluginOrigins.length) {
-    }
 
     for (const item of internalTuiPlugins(flags)) {
       const entry = loadInternalPlugin(item)

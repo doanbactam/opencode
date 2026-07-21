@@ -47,10 +47,6 @@ export const AttachCommand = cmd({
         describe: "start the minimal interactive interface",
         default: false,
       })
-      .option("replay", {
-        type: "boolean",
-        hidden: true,
-      })
       .option("no-replay", {
         type: "boolean",
         describe: "disable mini session history replay on resume and after resize",
@@ -60,12 +56,7 @@ export const AttachCommand = cmd({
         describe: "cap visible mini replay to the newest N messages",
       }),
   handler: async (args) => {
-    if (args.replay === true) {
-      UI.error("--replay is not supported; replay is enabled by default")
-      process.exitCode = 1
-      return
-    }
-    const noReplay = args.replay === false || args.noReplay === true
+    const noReplay = args.noReplay === true
 
     const directory = (() => {
       if (!args.dir) return undefined

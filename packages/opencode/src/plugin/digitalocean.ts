@@ -254,8 +254,6 @@ export async function DigitalOceanAuthPlugin(input: PluginInput): Promise<Hooks>
                 body: { type: "api", key: ctx.auth.key, metadata: updated },
               })
               .catch(() => {})
-          } else if (result.status === 401 || result.status === 403) {
-          } else if (result.status !== 0) {
           }
         }
 
@@ -290,8 +288,6 @@ export async function DigitalOceanAuthPlugin(input: PluginInput): Promise<Hooks>
                   const tokens = await callbackPromise
                   const routerResult = await listRouters(tokens.access_token)
                   const routers = routerResult.ok ? routerResult.routers : []
-                  if (!routerResult.ok) {
-                  }
                   return {
                     type: "success" as const,
                     provider: "digitalocean",

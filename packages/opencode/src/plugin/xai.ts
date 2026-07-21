@@ -3,6 +3,7 @@ import { OAUTH_DUMMY_KEY } from "../auth"
 import { createServer } from "http"
 import { InstallationVersion } from "@opencode-ai/core/installation/version"
 import { OauthCallbackPage } from "@opencode-ai/core/oauth/page"
+import { generatePKCE, generateState, type PkceCodes } from "./oauth"
 
 // Public Grok-CLI OAuth client. xAI's auth server rejects loopback OAuth from
 // non-allowlisted clients, so we reuse the Grok-CLI client_id that xAI ships
@@ -46,33 +47,6 @@ interface XaiAuthPluginOptions {
   authorizeUrl?: string
   tokenUrl?: string
   deviceAuthorizationUrl?: string
-}
-
-interface PkceCodes {
-  verifier: string
-  challenge: string
-}
-
-async function generatePKCE(): Promise<PkceCodes> {
-  const verifier = generateRandomString(64)
-  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier))
-  return { verifier, challenge: base64UrlEncode(hash) }
-}
-
-function generateRandomString(length: number): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
-  return Array.from(crypto.getRandomValues(new Uint8Array(length)))
-    .map((b) => chars[b % chars.length])
-    .join("")
-}
-
-function base64UrlEncode(buffer: ArrayBuffer): string {
-  const binary = String.fromCharCode(...new Uint8Array(buffer))
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
-}
-
-function generateState(): string {
-  return base64UrlEncode(crypto.getRandomValues(new Uint8Array(32)).buffer)
 }
 
 interface TokenResponse {

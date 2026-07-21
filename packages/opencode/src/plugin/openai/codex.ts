@@ -6,6 +6,7 @@ import { setTimeout as sleep } from "node:timers/promises"
 import { createServer } from "http"
 import { OpenAIWebSocketPool } from "./ws-pool"
 import { OauthCallbackPage } from "@opencode-ai/core/oauth/page"
+import { generatePKCE, generateState, type PkceCodes } from "../oauth"
 
 const CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann"
 const ISSUER = "https://auth.openai.com"
@@ -14,26 +15,6 @@ const OAUTH_PORT = 1455
 const OAUTH_POLLING_SAFETY_MARGIN_MS = 3000
 const ALLOWED_MODELS = new Set(["gpt-5.5", "gpt-5.3-codex-spark", "gpt-5.4", "gpt-5.4-mini"])
 const DISALLOWED_MODELS = new Set(["gpt-5.5-pro"])
-
-interface PkceCodes {
-  verifier: string
-  challenge: string
-}
-
-async function generatePKCE(): Promise<PkceCodes> {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
-  const verifier = Array.from(crypto.getRandomValues(new Uint8Array(43)))
-    .map((b) => chars[b % chars.length])
-    .join("")
-  const challenge = base64UrlEncode(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)))
-  return { verifier, challenge }
-}
-
-function base64UrlEncode(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer)
-  const binary = String.fromCharCode(...bytes)
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
-}
 
 export interface IdTokenClaims {
   chatgpt_account_id?: string
@@ -432,8 +413,8 @@ export async function CodexAuthPlugin(input: PluginInput, options: CodexAuthPlug
           type: "oauth",
           authorize: async () => {
             const { redirectUri } = await startOAuthServer()
-            const pkce = await generatePKCE()
-            const state = base64UrlEncode(crypto.getRandomValues(new Uint8Array(32)).buffer)
+            const pkce = await generatePKCE(43)
+            const state = generateState()
             const authUrl = buildAuthorizeUrl(redirectUri, pkce, state)
 
             const callbackPromise = waitForOAuthCallback(pkce, state)

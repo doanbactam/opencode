@@ -1,7 +1,7 @@
 import { Commands } from "../commands"
 import { Runtime } from "../../framework/runtime"
 import { Effect } from "effect"
-import { Daemon } from "../../services/daemon"
+import { Daemon } from "opencode/cli/daemon"
 
 export default Runtime.handler(Commands, () =>
   Effect.gen(function* () {

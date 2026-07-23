@@ -27,19 +27,6 @@ export const Commands = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCO
       commands: [Spec.make("agents", { description: "List all agents" })],
     }),
     Spec.make("migrate", { description: "Migrate v1 data to v2" }),
-    Spec.make("service", {
-      description: "Manage the background server",
-      commands: [
-        Spec.make("start", { description: "Start the background server" }),
-        Spec.make("restart", { description: "Restart the background server" }),
-        Spec.make("status", { description: "Show background server status" }),
-        Spec.make("stop", { description: "Stop the background server" }),
-        Spec.make("password", {
-          description: "Get or set the server password",
-          params: { value: Argument.string("value").pipe(Argument.optional) },
-        }),
-      ],
-    }),
     Spec.make("serve", {
       description: "Start the v2 API server",
       params: {

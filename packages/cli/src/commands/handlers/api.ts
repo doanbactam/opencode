@@ -2,7 +2,7 @@ import { EOL } from "node:os"
 import { Effect, Option } from "effect"
 import { Commands } from "../commands"
 import { Runtime } from "../../framework/runtime"
-import { Daemon } from "../../services/daemon"
+import { Daemon } from "opencode/cli/daemon"
 
 const methods = new Set(["delete", "get", "head", "options", "patch", "post", "put"])
 

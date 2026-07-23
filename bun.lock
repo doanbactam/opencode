@@ -109,6 +109,7 @@
         "@opentui/solid": "catalog:",
         "@parcel/watcher": "2.5.1",
         "effect": "catalog:",
+        "opencode": "workspace:*",
         "solid-js": "catalog:",
       },
       "devDependencies": {

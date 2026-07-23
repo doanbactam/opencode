@@ -18,7 +18,7 @@ export interface Interface {
   readonly register: (address: HttpServer.Address) => Effect.Effect<void, unknown, Scope.Scope>
 }
 
-export class Service extends Context.Service<Service, Interface>()("@opencode/cli/Daemon") {}
+export class Service extends Context.Service<Service, Interface>()("@opencode/Daemon") {}
 
 const Registration = Schema.Struct({
   id: Schema.optional(Schema.String),
@@ -156,9 +156,12 @@ export const layer = Layer.effect(
       const existing = yield* healthy().pipe(Effect.option)
       // A stale registration may point at a PID that has since been reused by
       // another process. Only signal the PID after authenticating the server.
-      if (Option.isNone(existing)) return yield* fs.remove(file).pipe(Effect.ignore)
-      yield* stopProcess(existing.value)
-      yield* fs.remove(file).pipe(Effect.ignore)
+      if (Option.isNone(existing)) {
+        yield* fs.remove(file).pipe(Effect.ignore)
+      } else {
+        yield* stopProcess(existing.value)
+        yield* fs.remove(file).pipe(Effect.ignore)
+      }
     })
 
     const register = Effect.fn("cli.daemon.register")(function* (address: HttpServer.Address) {

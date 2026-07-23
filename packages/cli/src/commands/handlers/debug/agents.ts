@@ -2,7 +2,7 @@ import { EOL } from "os"
 import * as Effect from "effect/Effect"
 import { Commands } from "../../commands"
 import { Runtime } from "../../../framework/runtime"
-import { Daemon } from "../../../services/daemon"
+import { Daemon } from "opencode/cli/daemon"
 
 export default Runtime.handler(
   Commands.commands.debug.commands.agents,

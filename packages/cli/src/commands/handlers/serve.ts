@@ -10,7 +10,7 @@ import { createServer } from "node:http"
 import { createRoutes } from "@opencode-ai/server/routes"
 import { Commands } from "../commands"
 import { Runtime } from "../../framework/runtime"
-import { Daemon } from "../../services/daemon"
+import { Daemon } from "opencode/cli/daemon"
 
 export default Runtime.handler(
   Commands.commands.serve,
